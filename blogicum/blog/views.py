@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import Http404
 
 
 # List of posts with their params. For testing purposes.
@@ -48,33 +49,31 @@ posts = [
 
 # Main page/List of posts' previews
 def index(request):
-    # Template for posts preview.
-    template = 'blog/index.html'
     # Send posts list (WiP) into context var.
     context = {'posts': posts}
     # Render template into page.
-    return render(request, template, context)
+    return render(request, 'blog/index.html', context)
 
 
 # Post No.id page with details.
 def post_detail(request, id):
-    # Template for page with post details.
-    template = 'blog/detail.html'
-    # Send post_<id> into context var.
-    context = {
-        'post': [post for post in posts if post['id'] == id][0],
-    }
+    # Try to get required post if it exists.
+    try:
+        # Send post_<id> into context var.
+        context = {
+            'post': [post for post in posts if post['id'] == id][0],
+        }
+    except IndexError:
+        raise Http404(f'Post No.{id} does not exist.')
     # Render template into page.
-    return render(request, template, context)
+    return render(request, 'blog/detail.html', context)
 
 
 # Page with the list of posts by category.
 def category_posts(request, category_slug):
-    # Template <category_slug> category page.
-    template = 'blog/category.html'
     # Send category name into context var.
     context = {
         'category': category_slug,
     }
     # Render template into page.
-    return render(request, template, context)
+    return render(request, 'blog/category.html', context)
